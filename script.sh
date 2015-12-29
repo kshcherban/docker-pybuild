@@ -55,7 +55,7 @@ Description: $PACKAGE
 EOF
 
 cat << EOF > ${PACKAGE}-${VERSION}/debian/changelog
-python-$PACKAGE (${VERSION}-1iow1) UNRELEASED; urgency=medium
+python-$PACKAGE (${VERSION}-1build1) UNRELEASED; urgency=medium
 
   * Initial release.
 
