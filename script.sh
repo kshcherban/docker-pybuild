@@ -14,10 +14,10 @@ CHDATE="$(date '+%a, %d %b %Y %H:%M:%S %z')"
 mkdir -vp $BUILDROOT
 cd $BUILDROOT
 EXT=tar.gz
-wget https://pypi.python.org/packages/source/$(echo $PACKAGE | head -c 1)/${PACKAGE}/${PACKAGE}-${VERSION}.${EXT} -O python-${PACKAGE}-${VERSION}.${EXT}
+wget https://pypi.python.org/packages/source/$(echo $PACKAGE | head -c 1)/${PACKAGE}/${PACKAGE}-${VERSION}.${EXT} -O python-${PACKAGE}_${VERSION}.orig.${EXT}
 if [ $? -ne 0 ]; then
     EXT=tar.bz2
-    wget https://pypi.python.org/packages/source/$(echo $PACKAGE | head -c 1)/${PACKAGE}/${PACKAGE}-${VERSION}.${EXT} -O python-${PACKAGE}-${VERSION}.${EXT}
+    wget https://pypi.python.org/packages/source/$(echo $PACKAGE | head -c 1)/${PACKAGE}/${PACKAGE}-${VERSION}.${EXT} -O python-${PACKAGE}_${VERSION}.orig.${EXT}
 fi
 tar -xf python-${PACKAGE}-${VERSION}.${EXT}
 mkdir ${PACKAGE}-${VERSION}/debian
@@ -53,6 +53,11 @@ Depends: \${python3:Depends}, \${shlibs:Depends}, \${misc:Depends}
 Provides: \${python3:Provides}
 Description: $PACKAGE
 EOF
+
+touch ${PACKAGE}-${VERSION}/debian/copyright
+
+mkdir ${PACKAGE}-${VERSION}/debian/source
+echo '3.0 (quilt)' > ${PACKAGE}-${VERSION}/debian/source/format
 
 cat << EOF > ${PACKAGE}-${VERSION}/debian/changelog
 python-$PACKAGE (${VERSION}-1build1) UNRELEASED; urgency=medium
