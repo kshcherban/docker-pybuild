@@ -5,7 +5,9 @@ if [ $# -ne 1 ]; then
     exit 0
 fi
 
-PACKAGE="$(echo $1 | cut -d'=' -f1)"
+PACKAGE_ORIG="$(echo $1 | cut -d'=' -f1)"
+# Some python packages have upper case letters, that is not good for deb
+PACKAGE="$(echo $PACKAGE_ORIG | tr '[:upper:]' '[:lower:]')"
 VERSION="$(echo $1 | cut -d'=' -f2)"
 BUILDROOT="/opt/buildroot"
 MAINTAINER="John Doe <jdoe@example.com>"
@@ -14,15 +16,17 @@ CHDATE="$(date '+%a, %d %b %Y %H:%M:%S %z')"
 mkdir -vp $BUILDROOT
 cd $BUILDROOT
 EXT=tar.gz
-wget https://pypi.python.org/packages/source/$(echo $PACKAGE | head -c 1)/${PACKAGE}/${PACKAGE}-${VERSION}.${EXT} -O python-${PACKAGE}_${VERSION}.orig.${EXT}
+wget https://pypi.python.org/packages/source/$(echo $PACKAGE_ORIG | head -c 1)/${PACKAGE_ORIG}/${PACKAGE_ORIG}-${VERSION}.${EXT} -O python-${PACKAGE}_${VERSION}.orig.${EXT}
 if [ $? -ne 0 ]; then
+    rm python-${PACKAGE}_${VERSION}.orig.${EXT}
     EXT=tar.bz2
-    wget https://pypi.python.org/packages/source/$(echo $PACKAGE | head -c 1)/${PACKAGE}/${PACKAGE}-${VERSION}.${EXT} -O python-${PACKAGE}_${VERSION}.orig.${EXT}
+    wget https://pypi.python.org/packages/source/$(echo $PACKAGE_ORIG | head -c 1)/${PACKAGE_ORIG}/${PACKAGE_ORIG}-${VERSION}.${EXT} -O python-${PACKAGE}_${VERSION}.orig.${EXT}
 fi
-tar -xf python-${PACKAGE}-${VERSION}.${EXT}
-mkdir ${PACKAGE}-${VERSION}/debian
+tar -xf python-${PACKAGE}_${VERSION}.orig.${EXT}
+UNTARED="$(tar -tf python-${PACKAGE}_${VERSION}.orig.${EXT} | head -1)"
+mkdir ${UNTARED}/debian
 
-cat << EOF > ${PACKAGE}-${VERSION}/debian/control
+cat << EOF > ${UNTARED}/debian/control
 Source: python-$PACKAGE
 Section: python
 Priority: optional
@@ -54,12 +58,12 @@ Provides: \${python3:Provides}
 Description: $PACKAGE
 EOF
 
-touch ${PACKAGE}-${VERSION}/debian/copyright
+touch ${UNTARED}/debian/copyright
 
-mkdir ${PACKAGE}-${VERSION}/debian/source
-echo '3.0 (quilt)' > ${PACKAGE}-${VERSION}/debian/source/format
+mkdir ${UNTARED}/debian/source
+echo '3.0 (quilt)' > ${UNTARED}/debian/source/format
 
-cat << EOF > ${PACKAGE}-${VERSION}/debian/changelog
+cat << EOF > ${UNTARED}/debian/changelog
 python-$PACKAGE (${VERSION}-1build1) UNRELEASED; urgency=medium
 
   * Initial release.
@@ -68,7 +72,7 @@ python-$PACKAGE (${VERSION}-1build1) UNRELEASED; urgency=medium
 
 EOF
 
-cat << EOF > ${PACKAGE}-${VERSION}/debian/rules
+cat << EOF > ${UNTARED}/debian/rules
 #!/usr/bin/make -f
 
 export PYBUILD_NAME=$PACKAGE
@@ -79,9 +83,10 @@ export PYBUILD_DISABLE=test
 
 EOF
 
-echo 9 > ${PACKAGE}-${VERSION}/debian/compat
+echo 9 > ${UNTARED}/debian/compat
 
-cd ${PACKAGE}-${VERSION}
+cd ${UNTARED}
 dpkg-buildpackage -rfakeroot -uc -F
 
+pwd
 ls -lah $BUILDROOT
