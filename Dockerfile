@@ -9,7 +9,7 @@ RUN chmod +x /usr/bin/buildpydeb.sh
 RUN sed -i 's/archive/ru.archive/' /etc/apt/sources.list
 
 RUN echo nameserver 8.8.8.8 > /etc/resolv.conf
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     debhelper \
     dh-python \
