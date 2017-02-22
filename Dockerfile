@@ -1,23 +1,21 @@
-FROM ubuntu:14.04
+FROM debian:jessie
 
-MAINTAINER Konstantin Shcherban version: 0.1
-
-COPY script.sh /usr/bin/buildpydeb.sh
-
-RUN chmod +x /usr/bin/buildpydeb.sh
-
-RUN sed -i 's/archive/ru.archive/' /etc/apt/sources.list
-
-RUN echo nameserver 8.8.8.8 > /etc/resolv.conf
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     debhelper \
     dh-python \
+    ca-certificates \
+    build-essential \
     python-all-dev \
     python-all-dbg \
     python3-all-dev \
     python3-all-dbg \
     python-setuptools \
     python3-setuptools \
+    python-pip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --upgrade pip
+
+COPY script.sh /usr/bin/buildpydeb.sh
+RUN chmod +x /usr/bin/buildpydeb.sh
