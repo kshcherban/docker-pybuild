@@ -19,3 +19,5 @@ RUN pip install --upgrade pip
 
 COPY script.sh /usr/bin/buildpydeb.sh
 RUN chmod +x /usr/bin/buildpydeb.sh
+
+ENTRYPOINT ["/usr/bin/buildpydeb.sh"]

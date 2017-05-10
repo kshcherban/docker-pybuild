@@ -16,9 +16,9 @@ CHDATE="$(date '+%a, %d %b %Y %H:%M:%S %z')"
 mkdir -vp $BUILDROOT
 cd $BUILDROOT
 pip download --no-binary :all: ${PACKAGE}==${VERSION}
-SRC=$(ls *.tar.*)
+SRC=$(ls *.tar.* | grep -i ${PACKAGE})
 EXT=$(echo $SRC | awk -F'.' '{print $(NF-1)"."$NF}')
-mv $SRC python-${PACKAGE}_${VERSION}.orig.${EXT}
+mv -v $SRC python-${PACKAGE}_${VERSION}.orig.${EXT}
 tar -xf python-${PACKAGE}_${VERSION}.orig.${EXT}
 UNTARED="$(tar -tf python-${PACKAGE}_${VERSION}.orig.${EXT} | head -1)"
 mkdir ${UNTARED}/debian
